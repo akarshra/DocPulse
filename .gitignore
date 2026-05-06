@@ -1,16 +1,49 @@
+# =========================
 # Python
+# =========================
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
+*.log
 
-# Virtual environment
+# Virtual environments
 venv/
 backend/venv/
+.venv/
 
-# Environment variables
+# =========================
+# Environment variables (VERY IMPORTANT)
+# =========================
 .env
+backend/.env
+frontend/.env
 
-# Node (if frontend exists)
+# =========================
+# Node / Frontend
+# =========================
 node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
+# Build outputs
+dist/
+build/
+
+# =========================
 # OS files
+# =========================
 .DS_Store
+
+# =========================
+# IDE / editor
+# =========================
+.vscode/
+.idea/
+
+# =========================
+# Logs / temp
+# =========================
+*.log
+tmp/
+temp/
