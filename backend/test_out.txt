@@ -1,0 +1,83 @@
+INFO:root:Gemini client initialized successfully
+INFO:faiss.loader:Loading faiss.
+INFO:faiss.loader:Successfully loaded faiss.
+============================= test session starts ==============================
+platform darwin -- Python 3.12.5, pytest-8.2.2, pluggy-1.6.0 -- /Library/Frameworks/Python.framework/Versions/3.12/bin/python3
+cachedir: .pytest_cache
+rootdir: /Users/akarshraj/DocPulse/backend
+configfile: pytest.ini
+plugins: cov-7.1.0, asyncio-0.23.7, anyio-4.13.0
+asyncio: mode=Mode.AUTO
+collecting ... collected 1 item
+
+tests/test_services.py::test_stream_chat_missing_index_yields_error INFO:httpx:HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:batchEmbedContents "HTTP/1.1 404 Not Found"
+ERROR:app.services.streaming_chat_service:Error embedding question: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'models/text-embedding-004 is not found for API version v1beta, or is not supported for embedContent. Call ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}}
+EVENTS ARE: ['event: error\ndata: {"error": "Failed to process question"}\n\n']
+FAILED
+ERROR: Coverage failure: total of 32 is less than fail-under=95
+
+
+=================================== FAILURES ===================================
+_________________ test_stream_chat_missing_index_yields_error __________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10bd0aae0>
+
+    @pytest.mark.asyncio
+    async def test_stream_chat_missing_index_yields_error(monkeypatch):
+        file_id = "stream-no-index"
+        create_file_record(
+            "session-stream",
+            file_id,
+            "audio.mp3",
+            "audio/mpeg",
+            status="ready",
+            transcript=[{"text": "Hello", "start": 0.0, "end": 2.0}],
+        )
+    
+        events = []
+        async for event in streaming_module.stream_chat(file_id, "Hello", "session-stream"):
+            events.append(event)
+    
+        assert len(events) == 1
+        # faiss_service throws Index/metadata not found; streaming wraps as unexpected error
+        assert "error" in events[0]
+        # error is wrapped as a generic unexpected error by stream_chat exception handler
+        print("EVENTS ARE:", events)
+>       assert "unexpected" in events[0].lower()
+E       assert 'unexpected' in 'event: error\ndata: {"error": "failed to process question"}\n\n'
+E        +  where 'event: error\ndata: {"error": "failed to process question"}\n\n' = <built-in method lower of str object at 0x10be74030>()
+E        +    where <built-in method lower of str object at 0x10be74030> = 'event: error\ndata: {"error": "Failed to process question"}\n\n'.lower
+
+tests/test_services.py:360: AssertionError
+------------------------------ Captured log call -------------------------------
+INFO     httpx:_client.py:1025 HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:batchEmbedContents "HTTP/1.1 404 Not Found"
+ERROR    app.services.streaming_chat_service:streaming_chat_service.py:61 Error embedding question: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'models/text-embedding-004 is not found for API version v1beta, or is not supported for embedContent. Call ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}}
+=============================== warnings summary ===============================
+app/config.py:56
+  /Users/akarshraj/DocPulse/backend/app/config.py:56: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    Base = declarative_base()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================================ tests coverage ================================
+_______________ coverage: platform darwin, python 3.12.5-final-0 _______________
+
+Name                                     Stmts   Miss  Cover   Missing
+----------------------------------------------------------------------
+app/__init__.py                              0      0   100%
+app/config.py                               26      2    92%   24, 41
+app/main.py                                 40     10    75%   31-33, 37, 41, 45, 63, 74, 78, 82
+app/models.py                               12      0   100%
+app/services/__init__.py                     0      0   100%
+app/services/chat_service.py                38     31    18%   12-85
+app/services/faiss_service.py               72     61    15%   12, 16, 40-91, 97-109, 128-164
+app/services/file_service.py                 9      6    33%   5-11
+app/services/process_service.py            122    106    13%   17-21, 25-32, 64-123, 129-183, 194-262
+app/services/streaming_chat_service.py      81     52    36%   37-38, 43-45, 48-49, 57, 66-140, 147, 152, 162
+app/services/summary_service.py             29     24    17%   7-56
+app/services/upload_service.py              21     16    24%   7-27
+----------------------------------------------------------------------
+TOTAL                                      450    308    32%
+FAIL Required test coverage of 95% not reached. Total coverage: 31.56%
+=========================== short test summary info ============================
+FAILED tests/test_services.py::test_stream_chat_missing_index_yields_error - ...
+========================= 1 failed, 1 warning in 0.50s =========================

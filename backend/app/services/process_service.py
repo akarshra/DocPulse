@@ -123,7 +123,7 @@ def normalize_segments(
     return normalized
 
 
-def transcribe_audio_video_gemini(file_path: str, mime_type: str) -> List[Dict[str, Any]]:
+def transcribe_audio_video_gemini(file_path: str, mime_type: str = "audio/mpeg") -> List[Dict[str, Any]]:
     """Use Gemini File API to upload media, wait for processing, and request a timestamped transcript."""
 
     if not gemini_client:
