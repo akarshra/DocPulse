@@ -12,7 +12,7 @@ backend/venv/
 .venv/
 
 # =========================
-# Environment variables (VERY IMPORTANT)
+# Environment variables
 # =========================
 .env
 backend/.env
@@ -29,6 +29,11 @@ yarn-error.log*
 # Build outputs
 dist/
 build/
+
+# =========================
+# Uploads / user data
+# =========================
+backend/uploads/
 
 # =========================
 # OS files
