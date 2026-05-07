@@ -200,11 +200,11 @@ async def process_file(file_id: str, session_id: str):
         file_type = db_file.type
         file_path = os.path.join(UPLOAD_DIR, file_id)
 
-        # Verify file exists
-        if not os.path.exists(file_path):
-            raise HTTPException(status_code=404, detail=f"File not found at {file_path}")
-
+        # Validate file type first (before checking file existence)
         if file_type == "application/pdf":
+            # Verify file exists before processing
+            if not os.path.exists(file_path):
+                raise HTTPException(status_code=404, detail=f"File not found at {file_path}")
             text = extract_text_from_pdf(file_path)
 
             # For PDF, create segments by splitting text into chunks.
@@ -222,6 +222,9 @@ async def process_file(file_id: str, session_id: str):
                 )
 
         elif file_type.startswith("audio/") or file_type.startswith("video/"):
+            # Verify file exists before processing
+            if not os.path.exists(file_path):
+                raise HTTPException(status_code=404, detail=f"File not found at {file_path}")
             # normalize_segments() guarantees seconds + stable schema for audio/video.
             segments = transcribe_audio_video_gemini(file_path, file_type)
 
