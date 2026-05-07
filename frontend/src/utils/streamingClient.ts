@@ -16,6 +16,7 @@ export interface StreamEventHandlers {
 export class StreamingChatClient {
   private eventSource: EventSource | null = null
   private abortController: AbortController | null = null
+  private timeout: NodeJS.Timeout | null = null
 
   /**
    * Connect to streaming chat endpoint and listen for events
@@ -26,30 +27,32 @@ export class StreamingChatClient {
     sessionId: string,
     handlers: StreamEventHandlers
   ): void {
-    // Build URL with query parameters
+    if (!fileId || !question || !sessionId) {
+      handlers.onError('Missing required parameters')
+      return
+    }
+
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://docpulse-6o2j.onrender.com'
     const url = new URL(`${apiUrl}/api/chat/stream`)
     url.searchParams.append('file_id', fileId)
     url.searchParams.append('question', question)
-    // EventSource can't set custom headers, so pass session_id via query param as well.
     url.searchParams.append('session_id', sessionId)
 
+    this.eventSource = new EventSource(url.toString())
 
-    // Create EventSource
-    this.eventSource = new EventSource(url.toString(), {
-      // Note: withCredentials not directly settable on EventSource,
-      // but session ID is in query params
-    })
+    this.timeout = setTimeout(() => {
+      if (this.eventSource?.readyState === EventSource.OPEN) {
+        handlers.onError('Request timeout')
+        this.disconnect()
+      }
+    }, 120000)
 
-    // Add X-Session-ID header (won't work with EventSource query params)
-    // This is a limitation of EventSource - it doesn't support custom headers
-    // Workaround: session_id passed via query param above
-
-    // Handle different event types
     this.eventSource.addEventListener('token', (event: Event) => {
       try {
         const data = JSON.parse((event as MessageEvent).data)
-        handlers.onToken(data.token)
+        if (data.token) {
+          handlers.onToken(data.token)
+        }
       } catch (e) {
         console.error('Failed to parse token event:', e)
         handlers.onError('Failed to parse token event')
@@ -107,6 +110,10 @@ export class StreamingChatClient {
    * Disconnect from streaming endpoint
    */
   disconnect(): void {
+    if (this.timeout) {
+      clearTimeout(this.timeout)
+      this.timeout = null
+    }
     if (this.eventSource) {
       this.eventSource.close()
       this.eventSource = null

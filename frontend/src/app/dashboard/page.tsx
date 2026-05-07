@@ -128,14 +128,17 @@ export default function Dashboard() {
   }
 
   const fetchFiles = useCallback(async () => {
+    if (!sessionId) return
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://docpulse-6o2j.onrender.com'
       const res = await axios.get(`${apiUrl}/api/files`, {
         headers: { 'X-Session-ID': sessionId },
+        timeout: 10000,
       })
-      setFiles(res.data)
+      setFiles(res.data || [])
     } catch (error) {
       console.error('Error fetching files:', error)
+      setFiles([])
     }
   }, [sessionId])
 
@@ -156,6 +159,7 @@ export default function Dashboard() {
 
 
   const uploadFile = async (file: File) => {
+    if (!file || !sessionId) return
     setUploading(true)
     const formData = new FormData()
     formData.append('file', file)
@@ -165,7 +169,8 @@ export default function Dashboard() {
         headers: {
           'X-Session-ID': sessionId,
           'Content-Type': 'multipart/form-data'
-        }
+        },
+        timeout: 30000,
       })
       await fetchFiles()
     } catch (error) {
@@ -175,9 +180,13 @@ export default function Dashboard() {
   }
 
   const processFile = async (fileId: string) => {
+    if (!fileId || !sessionId) return
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://docpulse-6o2j.onrender.com'
     try {
-      await axios.post(`${apiUrl}/api/process/${fileId}`, {}, axiosConfig)
+      await axios.post(`${apiUrl}/api/process/${fileId}`, {}, {
+        headers: { 'X-Session-ID': sessionId },
+        timeout: 60000,
+      })
       await fetchFiles()
     } catch (error) {
       console.error('Error processing file:', error)
@@ -185,13 +194,18 @@ export default function Dashboard() {
   }
 
   const getSummary = async (fileId: string) => {
+    if (!fileId || !sessionId) return
     setLoading(true)
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://docpulse-6o2j.onrender.com'
     try {
-      const res = await axios.get(`${apiUrl}/api/summary/${fileId}`, axiosConfig)
-      setSummary(res.data.summary)
+      const res = await axios.get(`${apiUrl}/api/summary/${fileId}`, {
+        headers: { 'X-Session-ID': sessionId },
+        timeout: 30000,
+      })
+      setSummary(res.data?.summary || '')
     } catch (error) {
       console.error('Error getting summary:', error)
+      setSummary('')
     }
     setLoading(false)
   }
