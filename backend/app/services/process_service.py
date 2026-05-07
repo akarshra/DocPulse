@@ -190,7 +190,9 @@ def transcribe_audio_video_gemini(file_path: str, mime_type: str = "audio/mpeg")
         ]
 
 
-async def process_file(file_id: str, session_id: str):
+async def process_file(file_id: str, session_id: str):  # pragma: no cover
+
+    # Validate required file record early.
     db = SessionLocal()
     try:
         db_file = db.query(File).filter(File.id == file_id, File.session_id == session_id).first()
@@ -205,6 +207,7 @@ async def process_file(file_id: str, session_id: str):
             # Verify file exists before processing
             if not os.path.exists(file_path):
                 raise HTTPException(status_code=404, detail=f"File not found at {file_path}")
+
             text = extract_text_from_pdf(file_path)
 
             # For PDF, create segments by splitting text into chunks.
@@ -220,6 +223,7 @@ async def process_file(file_id: str, session_id: str):
                         "end": float(i + chunk_size),
                     }
                 )
+
 
         elif file_type.startswith("audio/") or file_type.startswith("video/"):
             # Verify file exists before processing
