@@ -200,6 +200,10 @@ async def process_file(file_id: str, session_id: str):
         file_type = db_file.type
         file_path = os.path.join(UPLOAD_DIR, file_id)
 
+        # Verify file exists
+        if not os.path.exists(file_path):
+            raise HTTPException(status_code=404, detail=f"File not found at {file_path}")
+
         if file_type == "application/pdf":
             text = extract_text_from_pdf(file_path)
 
@@ -235,29 +239,43 @@ async def process_file(file_id: str, session_id: str):
 
         texts = [seg["text"] for seg in segments]
         embeddings = []
-        for text in texts:
-            result = gemini_client.models.embed_content(
-                model="text-embedding-004",
-                contents=text,
-            )
-            embeddings.append(result.embeddings[0].values)
+        try:
+            for text in texts:
+                result = gemini_client.models.embed_content(
+                    model="text-embedding-004",
+                    contents=text,
+                )
+                embeddings.append(result.embeddings[0].values)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Embedding generation failed: {str(e)}")
 
         embeddings = np.array(embeddings).astype("float32")
 
+        # Dynamically determine dimension from actual embeddings
+        if embeddings.shape[0] == 0:
+            raise HTTPException(status_code=500, detail="No embeddings generated")
+
+        dimension = embeddings.shape[1]
+
         # Create FAISS index
-        dimension = 768  # for gemini-embedding-2
         index = faiss.IndexFlatL2(dimension)
         index.add(embeddings)
 
         # Save index
         index_path = os.path.join(FAISS_INDEX_DIR, f"{file_id}.index")
-        faiss.write_index(index, index_path)
+        try:
+            faiss.write_index(index, index_path)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to save FAISS index: {str(e)}")
 
         # Update status
         db_file.status = "ready"
         db.commit()
 
         return {"status": "processed"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"File processing failed: {str(e)}")
     finally:
         db.close()
-
