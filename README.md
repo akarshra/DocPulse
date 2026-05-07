@@ -1,87 +1,223 @@
-#DocPulse
-DocPulse is a full-stack AI-powered document intelligence app. Drop in a PDF, audio, or video file — and start a conversation with it. Ask questions, get summaries, and jump to the exact timestamp in your media where the answer lives.
+# DocPulse
 
-🚀 Features
-FeatureDescription📄Multi-format UploadSupports PDF, audio, and video files🎙️Auto TranscriptionAudio/video transcribed via Google Gemini File API📝PDF Text ExtractionFast text extraction using PyMuPDF🔍Vector SearchSemantic similarity search powered by FAISS🤖AI Q&AAnswers powered by gemini-2.5-flash📋Smart SummariesAuto-generated file summaries⚡Streaming ChatReal-time responses via Server-Sent Events (SSE)🎬Timestamp PlaybackJump directly to the answer in audio/video🎨Modern UIBuilt with Next.js, Framer Motion & Tailwind CSS
+AI-powered Document & Multimedia Q&A Web Application built with FastAPI, Next.js, Gemini AI, and FAISS.
 
-🛠️ Tech Stack
-┌─────────────────────────────────────────────────────────┐
-│                        DocPulse                         │
-├──────────────────────┬──────────────────────────────────┤
-│      Frontend        │           Backend                │
-│  Next.js + React     │       FastAPI (Python)           │
-│  Tailwind CSS        │       Google Gemini API          │
-│  shadcn/ui           │       FAISS Vector Search        │
-│  Framer Motion       │       PyMuPDF                    │
-├──────────────────────┴──────────────────────────────────┤
-│                      Database                           │
-│                  PostgreSQL (Docker)                    │
-├─────────────────────────────────────────────────────────┤
-│              Infrastructure & DevOps                    │
-│              Docker  ·  Docker Compose                  │
-└─────────────────────────────────────────────────────────┘
+## 🚀 Features
 
-⚙️ Getting Started
-Prerequisites
+- 📄 Upload and process PDF documents
+- 🎵 Upload audio and video files
+- 🤖 AI-powered question answering using Google Gemini
+- 🔍 Semantic search using FAISS vector database
+- 📌 Timestamp-based answers for media files
+- ⚡ Real-time streaming chat responses using SSE
+- 📝 Automatic summaries for uploaded files
+- 🎧 Audio/video transcription with Gemini File API
+- 🐳 Dockerized full-stack setup
+- ✅ Unit tests with 95%+ coverage
 
-🐳 Docker & Docker Compose
-🔑 Google Gemini API key from Google AI Studio
+---
 
-Installation
-1. Clone the repo
-bashgit clone https://github.com/akarshra/DocPulse.git
-cd DocPulse
-2. Add your API key
-Create a .env file inside the backend/ folder:
-envGEMINI_API_KEY=your_gemini_key_here
-3. Start with Docker Compose
-bashdocker-compose up --build
-4. Open in your browser
-http://localhost:3000
+## 🛠 Tech Stack
 
-✅ That's it! The frontend, backend, and database all spin up together.
+### Frontend
+- Next.js 15
+- TypeScript
+- Tailwind CSS
+- shadcn/ui
 
+### Backend
+- FastAPI
+- SQLAlchemy
+- FAISS
+- PyMuPDF
+- Google Gemini API
 
-📡 API Reference
-MethodEndpointDescriptionPOST/api/uploadUpload a PDF, audio, or video filePOST/api/process/{file_id}Transcribe/extract & index the filePOST/api/chatAsk a question about a processed fileGET/api/summary/{file_id}Get the AI-generated file summaryGET/api/filesList all uploaded filesGET/healthHealth check
+### Deployment
+- Vercel (Frontend)
+- Render (Backend)
+- Docker & Docker Compose
 
-🗂️ Project Structure
+---
+
+## 📂 Project Structure
+
+```bash
 DocPulse/
-├── 📁 backend/              # FastAPI Python backend
-│   ├── main.py              # API routes & app entry
-│   ├── gemini.py            # Gemini API integration
-│   └── vector_store.py      # FAISS vector search
 │
-├── 📁 frontend/             # Next.js React frontend
-│   ├── app/                 # App router pages
-│   ├── components/          # UI components
-│   └── lib/                 # Utilities & API client
+├── frontend/              # Next.js frontend
 │
-├── 📁 .github/workflows/    # CI/CD pipelines
-├── 🐳 docker-compose.yml   # Multi-container setup
-└── 📄 README.md
+├── backend/               # FastAPI backend
+│   ├── app/
+│   │   ├── services/
+│   │   ├── models.py
+│   │   ├── config.py
+│   │   └── main.py
+│   │
+│   ├── tests/
+│   └── requirements.txt
+│
+├── docker-compose.yml
+└── README.md
+```
 
-📊 Codebase
-Show Image
-Show Image
-Show Image
-Show Image
-Show Image
+---
 
-🤝 Contributing
-Contributions are welcome! Here's how to get involved:
+## ⚙️ Environment Variables
 
-Fork the repository
-Create a feature branch → git checkout -b feature/amazing-feature
-Commit your changes → git commit -m 'Add amazing feature'
-Push to the branch → git push origin feature/amazing-feature
-Open a Pull Request
+### Backend `.env`
 
-Feel free to open an issue for bugs or feature requests.
+```env
+GEMINI_API_KEY=your_api_key
+```
 
-📄 License
-This project is open source. See the repository for details.
+### Frontend `.env.local`
 
-<div align="center">
-Made with ❤️ by akarshra
-⭐ Star this repo if you find it useful!
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
+
+---
+
+## ▶️ Running Locally
+
+### 1️⃣ Clone Repository
+
+```bash
+git clone https://github.com/akarshra/DocPulse.git
+cd DocPulse
+```
+
+---
+
+### 2️⃣ Run Backend
+
+```bash
+cd backend
+
+python3 -m venv venv
+source venv/bin/activate
+
+pip install -r requirements.txt
+
+uvicorn app.main:app --reload
+```
+
+Backend runs on:
+
+```
+http://localhost:8000
+```
+
+---
+
+### 3️⃣ Run Frontend
+
+Open another terminal:
+
+```bash
+cd frontend
+
+npm install
+npm run dev
+```
+
+Frontend runs on:
+
+```
+http://localhost:3000
+```
+
+---
+
+## 🐳 Run with Docker
+
+```bash
+docker-compose up --build
+```
+
+---
+
+## 📡 API Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/upload` | Upload file |
+| POST | `/api/process/{file_id}` | Process uploaded file |
+| POST | `/api/chat` | Ask questions |
+| GET | `/api/chat/stream` | Streaming chat endpoint |
+| GET | `/api/summary/{file_id}` | Generate summary |
+| GET | `/api/files` | Get uploaded files |
+| GET | `/health` | Health check |
+
+---
+
+## 🧠 How It Works
+
+1. User uploads PDF/audio/video file
+2. Backend extracts text/transcript
+3. Text chunks are embedded using Gemini embeddings
+4. Embeddings stored in FAISS vector index
+5. User asks questions
+6. Relevant chunks retrieved semantically
+7. Gemini generates contextual answers
+8. Streaming responses delivered using SSE
+
+---
+
+## 🧪 Running Tests
+
+```bash
+cd backend
+
+pytest --cov=app --cov-report=term-missing
+```
+
+Coverage:
+
+```
+95%+
+```
+
+---
+
+## 🌐 Deployment
+
+### Frontend
+Deployed on Vercel
+
+### Backend
+Deployed on Render
+
+---
+
+## 🔒 CORS Configuration
+
+Production-ready CORS setup:
+
+```python
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "https://docpulse-eta.vercel.app"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+```
+
+---
+
+## 👨‍💻 Author
+
+Akarsh Raj
+
+GitHub: https://github.com/akarshra  
+Project Repository: https://github.com/akarshra/DocPulse  
+
+---
+
+## 📄 License
+
+This project is developed as part of an SDE-1 assignment submission.
