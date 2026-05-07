@@ -123,10 +123,6 @@ export default function Dashboard() {
 
 
 
-  const axiosConfig = {
-    headers: { 'X-Session-ID': sessionId }
-  }
-
   const fetchFiles = useCallback(async () => {
     if (!sessionId) return
     try {
