@@ -129,7 +129,8 @@ export default function Dashboard() {
 
   const fetchFiles = useCallback(async () => {
     try {
-      const res = await axios.get('http://localhost:8000/api/files', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://docpulse-6o2j.onrender.com'
+      const res = await axios.get(`${apiUrl}/api/files`, {
         headers: { 'X-Session-ID': sessionId },
       })
       setFiles(res.data)
@@ -155,12 +156,12 @@ export default function Dashboard() {
 
 
   const uploadFile = async (file: File) => {
-
     setUploading(true)
     const formData = new FormData()
     formData.append('file', file)
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://docpulse-6o2j.onrender.com'
     try {
-      await axios.post('http://localhost:8000/api/upload', formData, {
+      await axios.post(`${apiUrl}/api/upload`, formData, {
         headers: {
           'X-Session-ID': sessionId,
           'Content-Type': 'multipart/form-data'
@@ -174,8 +175,9 @@ export default function Dashboard() {
   }
 
   const processFile = async (fileId: string) => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://docpulse-6o2j.onrender.com'
     try {
-      await axios.post(`http://localhost:8000/api/process/${fileId}`, {}, axiosConfig)
+      await axios.post(`${apiUrl}/api/process/${fileId}`, {}, axiosConfig)
       await fetchFiles()
     } catch (error) {
       console.error('Error processing file:', error)
@@ -184,8 +186,9 @@ export default function Dashboard() {
 
   const getSummary = async (fileId: string) => {
     setLoading(true)
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://docpulse-6o2j.onrender.com'
     try {
-      const res = await axios.get(`http://localhost:8000/api/summary/${fileId}`, axiosConfig)
+      const res = await axios.get(`${apiUrl}/api/summary/${fileId}`, axiosConfig)
       setSummary(res.data.summary)
     } catch (error) {
       console.error('Error getting summary:', error)
@@ -559,7 +562,7 @@ export default function Dashboard() {
                   {(selectedFile.type.startsWith('audio/') || selectedFile.type.startsWith('video/')) && (
                     <MediaPlayer
                       ref={playerRef}
-                      src={`http://localhost:8000${selectedFile.url}`}
+                      src={`${process.env.NEXT_PUBLIC_API_URL || 'https://docpulse-6o2j.onrender.com'}${selectedFile.url}`}
                       type={selectedFile.type}
                       fileName={selectedFile.name}
                     />

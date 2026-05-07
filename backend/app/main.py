@@ -14,8 +14,8 @@ app = FastAPI(title="DocPulse API", description="AI-powered Document & Multimedi
 
 app.add_middleware(
     CORSMiddleware,
-    # Explicitly allow the frontend origin; avoids CORS edge-cases
-    allow_origins=["http://localhost:3000"],
+    # Allow all origins for development; restrict in production
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -27,10 +27,12 @@ app.mount("/files", StaticFiles(directory="uploads"), name="files")
 # Create database tables
 Base.metadata.create_all(bind=engine)
 
-def get_session_id(x_session_id: str = Header(None)):
-    if x_session_id is None:
-        raise HTTPException(status_code=400, detail="X-Session-ID header missing")
-    return x_session_id
+def get_session_id(x_session_id: str = Header(None), session_id: str = None):
+    # Accept session ID from header or query parameter (for EventSource compatibility)
+    sid = x_session_id or session_id
+    if not sid:
+        raise HTTPException(status_code=400, detail="X-Session-ID header or session_id query parameter required")
+    return sid
 
 @app.post("/api/upload")
 async def upload(file: UploadFile = File(...), session_id: str = Depends(get_session_id)):

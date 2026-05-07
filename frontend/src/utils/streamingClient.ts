@@ -27,7 +27,8 @@ export class StreamingChatClient {
     handlers: StreamEventHandlers
   ): void {
     // Build URL with query parameters
-    const url = new URL('http://localhost:8000/api/chat/stream')
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://docpulse-6o2j.onrender.com'
+    const url = new URL(`${apiUrl}/api/chat/stream`)
     url.searchParams.append('file_id', fileId)
     url.searchParams.append('question', question)
     // EventSource can't set custom headers, so pass session_id via query param as well.
@@ -137,7 +138,8 @@ export async function fallbackNonStreamingChat(
   handlers: StreamEventHandlers
 ): Promise<void> {
   try {
-    const response = await fetch('http://localhost:8000/api/chat', {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://docpulse-6o2j.onrender.com'
+    const response = await fetch(`${apiUrl}/api/chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
