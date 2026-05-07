@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -22,7 +24,13 @@ app.add_middleware(
 )
 
 
-app.mount("/files", StaticFiles(directory="uploads"), name="files")
+# Mount user-uploaded media. Use absolute path so tests/run-from-root don't fail.
+# Use uploads directory relative to this module's location.
+app.mount(
+    "/files",
+    StaticFiles(directory=os.path.join(os.path.dirname(__file__), "..", "uploads")),
+    name="files",
+)
 
 # Create database tables
 Base.metadata.create_all(bind=engine)

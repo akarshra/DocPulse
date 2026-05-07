@@ -52,3 +52,12 @@ backend/uploads/
 *.log
 tmp/
 temp/
+
+# Project-specific unwanted/generated artifacts
+assignment.zip
+backend/test_out.txt
+backend/test_gen.py
+backend/.coverage
+backend/.pytest_cache/
+frontend/.next/
+
